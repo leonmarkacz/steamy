@@ -1,0 +1,16 @@
+[package]
+name = "steamy"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+tao = "0.35.3"
+tray-icon = "0.24.1"
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
