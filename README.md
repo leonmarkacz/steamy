@@ -8,6 +8,7 @@ One click starts or stops macOS's built-in `caffeinate` process.
 - Prevents display sleep with `caffeinate -d`.
 - Prevents idle system sleep with `caffeinate -i`.
 - Automatically releases both assertions when Steamy exits.
+- Provides a right-click menu for a clean exit.
 - Uses macOS template icons that adapt to light and dark mode.
 - Waits for events instead of continuously polling.
 
@@ -26,7 +27,7 @@ cargo run
 ```
 
 Steamy appears in the macOS menu bar without a Dock icon. Left-click the cup to
-toggle keep-awake mode.
+toggle keep-awake mode. Right-click it and select **Quit Steamy** to exit.
 
 ## Development checks
 
@@ -41,33 +42,6 @@ cargo test
 ```shell
 cargo build --release
 ```
-
-The optimized executable is written to `target/release/steamy`.
-
-The release profile is optimized for a small binary:
-
-- `opt-level = "z"` optimizes for size.
-- Fat LTO optimizes across dependency boundaries.
-- One codegen unit gives LLVM the complete crate at once.
-- `panic = "abort"` removes stack-unwinding machinery.
-- Symbols are stripped from the final executable.
-
-These settings make release builds slower to compile. Development builds remain
-fast and debuggable.
-
-The profile was selected from local arm64 macOS measurements with Rust 1.96.1:
-
-| Profile | Binary size |
-| --- | ---: |
-| Cargo release defaults | 1,809,944 bytes |
-| `opt-level="s"`, fat LTO | 1,085,120 bytes |
-| `opt-level="z"`, thin LTO | 1,222,320 bytes |
-| `opt-level="z"`, fat LTO | **1,020,224 bytes** |
-
-`"z"` prioritizes binary size rather than compute-heavy throughput. That fits
-Steamy because its release process spends almost all of its time waiting for
-events. Measurements can change with the Rust compiler and dependencies, so the
-profile should be rechecked after major toolchain upgrades.
 
 `cargo build --release` creates an optimized executable, not a signed and
 notarized `.app` bundle. Bundling, code signing, notarization, and universal
