@@ -177,3 +177,19 @@ fn stop_keep_awake(child: &mut Child) -> std::io::Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn caffeinate_process_starts_and_stops() -> std::io::Result<()> {
+        let mut child = start_keep_awake()?;
+        assert!(child.try_wait()?.is_none());
+
+        stop_keep_awake(&mut child)?;
+        assert!(child.try_wait()?.is_some());
+
+        Ok(())
+    }
+}

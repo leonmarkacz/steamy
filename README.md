@@ -12,7 +12,17 @@ One click starts or stops macOS's built-in `caffeinate` process.
 - Uses macOS template icons that adapt to light and dark mode.
 - Waits for events instead of continuously polling.
 
-## Requirements
+## Install
+
+Download the Apple Silicon ZIP from the [latest GitHub release], extract it,
+and move `Steamy.app` to `/Applications`.
+
+To start Steamy automatically, add `/Applications/Steamy.app` under **System
+Settings → General → Login Items & Extensions → Open at Login**.
+
+[latest GitHub release]: https://github.com/leonmarkacz/steamy/releases/latest
+
+## Development requirements
 
 - macOS
 - Rust and Cargo
@@ -37,15 +47,14 @@ cargo clippy -- -D warnings
 cargo test
 ```
 
-## Release build
+## Package a release
 
 ```shell
-cargo build --release
+scripts/package-macos.sh
 ```
 
-`cargo build --release` creates an optimized executable, not a signed and
-notarized `.app` bundle. Bundling, code signing, notarization, and universal
-Apple Silicon/Intel builds are separate distribution steps.
+The script creates `dist/Steamy-<version>-macos-arm64.zip`. Pushing a version
+tag such as `v0.1.0` runs the same checks and publishes that ZIP on GitHub.
 
 ## How it works
 
