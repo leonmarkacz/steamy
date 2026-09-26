@@ -63,6 +63,7 @@ impl App {
                 Ok(()) => {
                     println!("caffeinate stopped");
                     self.set_icon(&self.inactive_icon);
+                    self.set_tooltip("Steamy currently off");
                 }
                 Err(error) => {
                     eprintln!("could not stop caffeinate: {error}");
@@ -75,6 +76,7 @@ impl App {
                     println!("caffeinate started with PID {}", child.id());
                     self.caffeinate = Some(child);
                     self.set_icon(&self.active_icon);
+                    self.set_tooltip("Steamy is keeping things alive!");
                 }
                 Err(error) => {
                     eprintln!("could not start caffeinate: {error}");
@@ -106,6 +108,16 @@ impl App {
             eprintln!("could not update tray icon: {error}");
         }
     }
+
+    fn set_tooltip(&self, tooltip: &str) {
+        let Some(tray_icon) = &self.tray_icon else {
+            return;
+        };
+
+        if let Err(error) = tray_icon.set_tooltip(Some(tooltip)) {
+            eprintln!("could not update tray icon tooltip: {error}");
+        }
+    }
 }
 
 fn main() {
@@ -114,16 +126,15 @@ fn main() {
     let mut event_loop = EventLoopBuilder::<UserEvent>::with_user_event().build();
     event_loop.set_activation_policy(ActivationPolicy::Accessory);
 
-    let event_loop_proxy = event_loop.create_proxy();
+    let tray_icon_proxy = event_loop.create_proxy();
+    let menu_proxy = event_loop.create_proxy();
 
     TrayIconEvent::set_event_handler(Some(move |event| {
-        let _ = event_loop_proxy.send_event(UserEvent::Tray(event));
+        let _ = tray_icon_proxy.send_event(UserEvent::Tray(event));
     }));
 
-    let event_loop_proxy = event_loop.create_proxy();
-
     MenuEvent::set_event_handler(Some(move |event| {
-        let _ = event_loop_proxy.send_event(UserEvent::Menu(event));
+        let _ = menu_proxy.send_event(UserEvent::Menu(event));
     }));
 
     event_loop.run(move |event, _, control_flow| {
